@@ -1,0 +1,14 @@
+{
+  "object": {
+    "returnlist": [
+      {
+        "businessObjectName": "GPU 算力服务项目招标公告",
+        "receiveTime": "2025-01-05",
+        "businessId": "uuid-123"
+      }
+    ],
+    "page": {
+      "totalPage": 1
+    }
+  }
+}

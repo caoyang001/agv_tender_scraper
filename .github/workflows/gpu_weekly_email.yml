@@ -1,15 +1,14 @@
-name: AGV Weekly Email Report
+name: GPU Weekly Email Report
 
 on:
-  # Monday 01:00 UTC == Monday 09:00 Asia/Shanghai
   schedule:
-    - cron: "0 1 * * 1"
+    - cron: "30 1 * * 1"
   workflow_dispatch:
     inputs:
-      keyword:
-        description: "Search keyword"
+      keywords:
+        description: "Search keywords (comma-separated)"
         required: true
-        default: "AGV"
+        default: "GPU,GPU服务器,GPU算力,算力服务,GPU租赁,算力租赁,智算服务"
         type: string
       days:
         description: "How many recent days"
@@ -19,12 +18,12 @@ on:
       max_pages:
         description: "Max pages per site"
         required: true
-        default: "5"
+        default: "3"
         type: string
       sites:
         description: "Site keys (comma-separated) or all"
         required: true
-        default: "all"
+        default: "ccgp,ggzy,zcygov,zycg,szecp,cebpub,cebpubservice,mofcom,ebnew,chinabidding,365trade,ecsg,ygcgfw"
         type: string
       dry_run:
         description: "Preview only (no email send)"
@@ -33,7 +32,7 @@ on:
         type: boolean
 
 concurrency:
-  group: agv-weekly-email
+  group: gpu-weekly-email
   cancel-in-progress: false
 
 jobs:
@@ -66,32 +65,32 @@ jobs:
             exit 1
           fi
 
-      - name: Run AGV report
+      - name: Run GPU report
         env:
           EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-          EMAIL_RECEIVERS: ${{ secrets.AGV_EMAIL_RECEIVERS }}
+          EMAIL_RECEIVERS: ${{ secrets.GPU_EMAIL_RECEIVERS }}
           TZ: Asia/Shanghai
         run: |
-          KEYWORD="${{ github.event.inputs.keyword || 'AGV' }}"
+          KEYWORDS="${{ github.event.inputs.keywords || 'GPU,GPU服务器,GPU算力,算力服务,GPU租赁,算力租赁,智算服务' }}"
           DAYS="${{ github.event.inputs.days || '7' }}"
-          MAX_PAGES="${{ github.event.inputs.max_pages || '5' }}"
-          SITES="${{ github.event.inputs.sites || 'all' }}"
+          MAX_PAGES="${{ github.event.inputs.max_pages || '3' }}"
+          SITES="${{ github.event.inputs.sites || 'ccgp,ggzy,zcygov,zycg,szecp,cebpub,cebpubservice,mofcom,ebnew,chinabidding,365trade,ecsg,ygcgfw' }}"
           DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
 
           echo "Run time: $(date '+%Y-%m-%d %H:%M:%S %Z')"
-          echo "keyword=$KEYWORD days=$DAYS max_pages=$MAX_PAGES sites=$SITES dry_run=$DRY_RUN"
+          echo "keywords=$KEYWORDS days=$DAYS max_pages=$MAX_PAGES sites=$SITES dry_run=$DRY_RUN"
 
           if [ "$DRY_RUN" = "true" ]; then
-            python3 agv_tender_scraper.py \
-              --keyword "$KEYWORD" \
+            python3 gpu_tender_scraper.py \
+              --keywords "$KEYWORDS" \
               --days "$DAYS" \
               --max-pages "$MAX_PAGES" \
               --sites "$SITES" \
               --dry-run
           else
-            python3 agv_tender_scraper.py \
-              --keyword "$KEYWORD" \
+            python3 gpu_tender_scraper.py \
+              --keywords "$KEYWORDS" \
               --days "$DAYS" \
               --max-pages "$MAX_PAGES" \
               --sites "$SITES"
